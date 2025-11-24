@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TeenQuest</title>
+
+    <!-- Browser Tab Icon -->
+    <link rel="icon" type="image/png" href="assets/teenquestlogo.png">
+
+    <link rel="stylesheet" href="style.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <!-- PDF.js library for PDF rendering -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js"></script>
+</head>
+
+<body>
+    <!-- Abstract Background -->
+    <div class="abstract-bg"></div>
+
+    <!-- Login Modal -->
+    <div id="loginModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-logo">
+                    <img src="assets/teenquestlogo.png" alt="Mindful Academics Logo">
+                </div>
+                <h2>Welcome !</h2>
+                <p>Sign in to continue your journey</p>
+            </div>
+            <div class="modal-body">
+                <form id="loginForm">
+                    <div class="form-group">
+                        <label for="loginEmail">Email Address *</label>
+                        <input type="email" id="loginEmail" placeholder="Enter your email" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="loginPassword">Password *</label>
+                        <input type="password" id="loginPassword" placeholder="Enter your password" class="form-control" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary w-full">
+                        <i class="fas fa-sign-in-alt"></i> Sign In
+                    </button>
+                </form>
+                <div class="auth-switch">
+                    <p>Don't have an account?</p>
+                    <button id="showRegister" class="btn btn-secondary w-full">
+                        <i class="fas fa-user-plus"></i> Create New Account
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Register Modal -->
+    <div id="registerModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-logo">
+                    <img src="assets/teenquestlogo.png" alt="Mindful Academics Logo">
+                </div>
+                <h2>Join Our Research Study</h2>
+                <p>Create your account to get started</p>
+            </div>
+            <div class="modal-body">
+                <form id="registerForm">
+                    <div class="form-group">
+                        <label for="registerName">Full Name *</label>
+                        <input type="text" id="registerName" placeholder="Enter your full name" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="registerEmail">Email Address *</label>
+                        <input type="email" id="registerEmail" placeholder="Enter your email" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="registerPassword">Password *</label>
+                        <input type="password" id="registerPassword" placeholder="Create a password (min. 6 characters)" class="form-control" required minlength="6">
+                    </div>
+                    <div class="form-group">
+                        <label for="registerParticipantId">Participant ID *</label>
+                        <input type="text" id="registerParticipantId" placeholder="Enter your assigned Participant ID" class="form-control" required>
+                    </div>
+
+                    <div class="research-notice">
+                        <i class="fas fa-flask"></i>
+                        <div>
+                            <strong>Research Study Participation</strong>
+                            <p>By creating an account, you consent to participate in our research study. We'll collect usage data to analyze the effectiveness of this program.</p>
+                        </div>
+                    </div>
+
+                    <div class="consent-box">
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="consentCheckbox" required>
+                            <span class="checkmark"></span>
+                            <span class="consent-text">
+                                I consent to participate in this research study and understand that my anonymized data will be used for academic research purposes.
+                            </span>
+                        </label>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary w-full">
+                        <i class="fas fa-rocket"></i> Create Account & Start
+                    </button>
+                </form>
+                <div class="auth-switch">
+                    <button id="showLogin" class="btn btn-secondary w-full">
+                        <i class="fas fa-arrow-left"></i> Back to Sign In
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Header -->
+    <header class="header">
+        <div class="header-content">
+            <div class="logo">
+                <div class="logo-image">
+                    <img src="assets/teenquestlogo.png" alt="Mindful Academics Logo">
+                </div>
+                <div class="logo-text">
+                    <h1>TeenQuest</h1>
+                    <p>Research Study for Anxiety Relief</p>
+                </div>
+            </div>
+            <div class="user-info" id="userInfo" style="display: none;">
+                <div class="user-welcome">
+                    <i class="fas fa-user-circle"></i>
+                    <span>Welcome, <strong id="userName"></strong></span>
+                </div>
+                <button id="logoutBtn" class="logout-btn">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </button>
+            </div>
+            <button class="menu-toggle" id="menuToggle">
+                <i class="fas fa-bars"></i>
+            </button>
+        </div>
+    </header>
+
+    <div class="container">
+        <!-- Sidebar -->
+        <nav class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <h3>Navigation</h3>
+                <button class="sidebar-close" id="sidebarClose">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="nav-items">
+                <button class="nav-item active" data-section="home">
+                    <i class="fas fa-home"></i>
+                    <span>Dashboard</span>
+                </button>
+                <button class="nav-item" data-section="strategies">
+                    <i class="fas fa-brain"></i>
+                    <span>Anxiety Strategies</span>
+                </button>
+                <button class="nav-item" data-section="study">
+                    <i class="fas fa-book-open"></i>
+                    <span>Study Habits</span>
+                </button>
+                <button class="nav-item" data-section="breathing">
+                    <i class="fas fa-wind"></i>
+                    <span>Breathing Exercises</span>
+                </button>
+                <button class="nav-item" data-section="exercise">
+                    <i class="fas fa-dumbbell"></i>
+                    <span>Physical Exercises</span>
+                </button>
+                <button class="nav-item" data-section="meditation">
+                    <i class="fas fa-spa"></i>
+                    <span>Meditation</span>
+                </button>
+                <button class="nav-item" data-section="profile">
+                    <i class="fas fa-user"></i>
+                    <span>My Profile</span>
+                </button>
+                <button class="nav-item" data-section="tracking">
+                    <i class="fas fa-chart-bar"></i>
+                    <span>My Progress</span>
+                </button>
+                <button class="nav-item" data-section="research-team">
+                    <i class="fas fa-users"></i>
+                    <span>Research Team</span>
+                </button>
+                <button class="nav-item" data-section="developer">
+                    <i class="fas fa-code"></i>
+                    <span>Developer</span>
+                </button>
+                <button class="nav-item" data-section="feedback">
+                    <i class="fas fa-comment"></i>
+                    <span>Feedback</span>
+                </button>
+            </div>
+            <div class="sidebar-footer">
+                <div class="research-badge">
+                    <i class="fas fa-flask"></i>
+                    <span>Research Study</span>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Overlay for mobile sidebar -->
+        <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+        <!-- Main Content -->
+        <main class="main-content" id="mainContent">
+            <!-- Content will be loaded here by JavaScript -->
+        </main>
+    </div>
+
+    <!-- Document Viewer Modal -->
+    <div id="documentModal" class="modal">
+        <div class="modal-content document-modal">
+            <div class="modal-header">
+                <h2 id="documentTitle">Document</h2>
+                <button class="close-btn" id="closeDocument">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body document-content" id="documentContent">
+                <!-- Document content will be loaded here -->
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" id="downloadDocument">
+                    <i class="fas fa-download"></i> Download Document
+                </button>
+                <button class="btn btn-primary" id="closeDocumentBtn">
+                    Close
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- PDF Viewer Modal -->
+    <div id="pdfModal" class="modal">
+        <div class="modal-content pdf-modal">
+            <div class="modal-header">
+                <h2 id="pdfTitle">PDF Document</h2>
+                <button class="close-btn" id="closePdf">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body pdf-content">
+                <div class="pdf-controls">
+                    <button class="btn btn-secondary" id="prevPage">
+                        <i class="fas fa-chevron-left"></i> Previous
+                    </button>
+                    <span class="page-info">Page: <span id="pageNum">1</span> / <span id="pageCount">0</span></span>
+                    <button class="btn btn-secondary" id="nextPage">
+                        Next <i class="fas fa-chevron-right"></i>
+                    </button>
+                    <button class="btn btn-primary" id="downloadPdf">
+                        <i class="fas fa-download"></i> Download PDF
+                    </button>
+                </div>
+                <div class="pdf-container">
+                    <canvas id="pdfCanvas"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Audio Player Modal -->
+    <div id="audioModal" class="modal">
+        <div class="modal-content audio-modal">
+            <div class="modal-header">
+                <h2 id="audioTitle">Audio Guide</h2>
+            </div>
+            <div class="modal-body audio-content">
+                <div class="audio-player">
+                    <div class="audio-info">
+                        <div class="audio-title" id="currentAudioTitle">Audio Title</div>
+                        <div class="audio-duration" id="audioDuration">00:00</div>
+                    </div>
+                    <div class="audio-controls">
+                        <button class="audio-btn" id="playPauseBtn">
+                            <i class="fas fa-play"></i>
+                        </button>
+                        <div class="progress-container">
+                            <div class="progress-bar" id="progressBar">
+                                <div class="progress" id="progress"></div>
+                            </div>
+                        </div>
+                        <button class="audio-btn" id="muteBtn">
+                            <i class="fas fa-volume-up"></i>
+                        </button>
+                    </div>
+                    <div class="audio-time">
+                        <span id="currentTime">00:00</span> / <span id="totalTime">00:00</span>
+                    </div>
+                </div>
+                <div class="audio-list">
+                    <h3>Available Audio Guides</h3>
+                    <div class="audio-items" id="audioItems">
+                        <!-- Audio items will be populated here -->
+                    </div>
+                </div>
+                <div class="audio-modal-footer">
+                    <button class="btn btn-primary" id="closeAudioBtn">
+                        <i class="fas fa-times"></i> Exit Audio Player
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
