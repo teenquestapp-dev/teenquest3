@@ -68,70 +68,70 @@ class AcademicAnxietyApp {
             students: [
                 {
                     name: "Mr.Alanjino",
-                    role: "Student Researcher <p> BSc(N) VI year </p>",
+                    role: "Student Researcher <p> BSc(N) 4th Year </p>",
                     image: "assets/team/mr.alanjino.jpg",
                     description: "Psychology major with focus on adolescent development. Emily coordinates participant recruitment and data collection.",
                     year: "4th Year"
                 },
                 {
                     name: "Mr.Jove singh",
-                    role: "Student Researcher <p> BSc(N) VI year </p>",
+                    role: "Student Researcher <p> BSc(N) 4th Year </p>",
                     image: "assets/team/mr.jove singh.jpg",
                     description: "Statistics and Psychology double major. James handles quantitative analysis and statistical modeling for the research data.",
                     year: "4th Year"
                 },
                 {
                     name: "Mr.shane sujeeth",
-                    role: "Student Researcher <p> BSc(N) VI year </p>",
+                    role: "Student Researcher <p> BSc(N) 4th Year </p>",
                     image: "assets/team/mr.shane sujeeth.jpg",
                     description: "Education and Digital Media major. Sophia develops the therapeutic content and ensures it's age-appropriate and engaging.",
                     year: "4th Year"
                 },
                 {
                     name: "Mr.Shebin Ahmad",
-                    role: "Student Researcher <p> BSc(N) VI year </p>",
+                    role: "Student Researcher <p> BSc(N) 4th Year </p>",
                     image: "assets/team/mr.shebin Ahmad.jpg",
                     description: "Computer Science and Psychology major. Daniel oversees the technical implementation and platform development.",
                     year: "4th Year"
                 },
                 {
                     name: "Mr.Shri balaji",
-                    role: "Student Researcher <p> BSc(N) VI year </p>",
+                    role: "Student Researcher <p> BSc(N) 4th Year </p>",
                     image: "assets/team/mr.shri balaji.jpg",
                     description: "Human-Computer Interaction major. Olivia conducts usability testing and gathers user feedback to improve the platform.",
                     year: "4th Year"
                 },
                 {
                     name: "Ms.Aswini",
-                    role: "Student Researcher <p> BSc(N) VI year </p>",
+                    role: "Student Researcher <p> BSc(N) 4th Year </p>",
                     image: "assets/team/ms.aswini.jpg",
                     description: "Communications and Psychology major. Ethan manages community outreach and participant communication.",
                     year: "4th Year"
                 },
                 {
                     name: "Ms.Ilayabharathi",
-                    role: "Student Researcher <p> BSc(N) VI year </p>",
+                    role: "Student Researcher <p> BSc(N) 4th Year </p>",
                     image: "assets/team/ms.ilayabharathi.jpg",
                     description: "Psychology and Literature major. Ava conducts literature reviews and ensures evidence-based content development.",
                     year: "4th Year"
                 },
                 {
                     name: "Ms.Pritha halder",
-                    role: "Student Researcher <p> BSc(N) VI year </p>",
+                    role: "Student Researcher <p> BSc(N) 4th Year </p>",
                     image: "assets/team/ms.pritha halder.jpg",
                     description: "Music Therapy and Psychology major. Noah produces and records the guided audio content for the platform.",
                     year: "4th Year"
                 },
                 {
                     name: "Ms.Vijayalakshmi",
-                    role: "Student Researcher <p> BSc(N) VI year </p>",
+                    role: "Student Researcher <p> BSc(N) 4th Year </p>",
                     image: "assets/team/ms.vijayalakshmi.jpg",
                     description: "Bioethics and Psychology major. Isabella ensures all research protocols meet ethical standards and guidelines.",
                     year: "4th Year"
                 },
                 {
                     name: "Mr.Mathews regi",
-                    role: "Student Researcher <p> BSc(N) VI year </p>",
+                    role: "Student Researcher <p> BSc(N) 4th Year </p>",
                     image: "assets/team/mr.mathews regi.jpg",
                     description: "Cybersecurity and Psychology major. Liam manages data security and ensures participant privacy protection.",
                     year: "4th Year"
@@ -291,8 +291,9 @@ class AcademicAnxietyApp {
         
         if (progressBar) progressBar.addEventListener('click', (e) => {
             this.setProgress(e);
-        });
+        });  
     }
+    
 
     toggleMobileMenu() {
         const sidebar = document.getElementById('sidebar');
@@ -350,59 +351,114 @@ class AcademicAnxietyApp {
             this.showModal('loginModal');
         }
     }
-
-    async handleUserSession(user) {
-        console.log('Handling user session for:', user.email);
-        this.user = user;
+    async viewAllUserData() {
+    if (!this.user) return;
+    
+    try {
+        console.log('=== USER DATA ANALYSIS ===');
         
-        try {
-            // Check if user profile exists
-            const { data: profile, error } = await this.supabase
-                .from('user_profiles')
-                .select('*')
-                .eq('id', user.id)
-                .single();
-
-            if (error) {
-                console.error('Error fetching user profile:', error);
-                
-                // Check if this is a new user who needs to complete registration
-                const registrationData = this.getPendingRegistration();
-                if (registrationData && registrationData.email === user.email) {
-                    // Complete the registration by creating the profile
-                    await this.completeUserRegistration(user, registrationData);
-                } else {
-                    // For demo - create a temporary profile
-                    this.participantId = 'DEMO_' + user.id.substring(0, 8);
-                    document.getElementById('userName').textContent = user.email;
-                }
-            } else {
-                this.participantId = profile.participant_id;
-                document.getElementById('userName').textContent = profile.full_name || user.email;
-                
-                // Clear any pending registration data
-                this.clearPendingRegistration();
-            }
-
-            // Load user tracking data
-            await this.loadUserTracking();
-            
-            // Update UI
-            this.updateUIForAuthState(true);
-            
-            // Start session
-            this.sessionStartTime = new Date();
-            await this.logSessionStart();
-            
-            // Always show home section after login - removed the condition that was preventing this
-            this.showSection('home');
-            this.trackVisit('home');
-
-            console.log('User session setup complete');
-        } catch (error) {
-            console.error('Error handling user session:', error);
-        }
+        // Get all user data
+        const { data: profiles, error: profileError } = await this.supabase
+            .from('user_profiles')
+            .select('*')
+            .eq('id', this.user.id);
+        
+        const { data: sessions, error: sessionError } = await this.supabase
+            .from('user_sessions')
+            .select('*')
+            .eq('user_id', this.user.id);
+        
+        const { data: sections, error: sectionError } = await this.supabase
+            .from('section_visits')
+            .select('*')
+            .eq('user_id', this.user.id);
+        
+        const { data: feedback, error: feedbackError } = await this.supabase
+            .from('user_feedback')
+            .select('*')
+            .eq('user_id', this.user.id);
+        
+        const { data: documents, error: docError } = await this.supabase
+            .from('document_interactions')
+            .select('*')
+            .eq('user_id', this.user.id);
+        
+        const { data: audio, error: audioError } = await this.supabase
+            .from('audio_interactions')
+            .select('*')
+            .eq('user_id', this.user.id);
+        
+        const { data: daily, error: dailyError } = await this.supabase
+            .from('daily_usage_summary')
+            .select('*')
+            .eq('user_id', this.user.id);
+        
+        console.log('User Profile:', profiles);
+        console.log('Sessions:', sessions);
+        console.log('Section Visits:', sections);
+        console.log('Feedback:', feedback);
+        console.log('Document Interactions:', documents);
+        console.log('Audio Interactions:', audio);
+        console.log('Daily Usage:', daily);
+        
+    } catch (error) {
+        console.error('Error viewing user data:', error);
     }
+}
+
+   async handleUserSession(user) {
+    console.log('Handling user session for:', user.email);
+    this.user = user;
+    
+    try {
+        // Set participant ID from user metadata first
+        this.participantId = user.user_metadata?.participant_id || 'DEMO_' + user.id.substring(0, 8);
+        
+        // Create or update user profile in the database
+        const { data: profile, error: profileError } = await this.supabase
+            .from('user_profiles')
+            .upsert([{
+                id: user.id,
+                email: user.email,
+                full_name: user.user_metadata?.full_name || 'Unknown',
+                participant_id: this.participantId,
+                updated_at: new Date().toISOString()
+            }], {
+                onConflict: 'id'
+            });
+
+        if (profileError) {
+            console.error('Error creating/updating user profile:', profileError);
+            // Continue even if profile creation fails
+        } else {
+            console.log('User profile created/updated successfully');
+        }
+
+        // Update UI with user name
+        document.getElementById('userName').textContent = user.user_metadata?.full_name || user.email;
+        
+        // Clear any pending registration data
+        this.clearPendingRegistration();
+        
+        // Load user tracking data
+        await this.loadUserTracking();
+        
+        // Update UI
+        this.updateUIForAuthState(true);
+        
+        // Start session
+        this.sessionStartTime = new Date();
+        await this.logSessionStart();
+        
+        // Always show home section after login
+        this.showSection('home');
+        this.trackVisit('home');
+
+        console.log('User session setup complete');
+    } catch (error) {
+        console.error('Error handling user session:', error);
+    }
+}
 
     // Store registration data temporarily
     storePendingRegistration(data) {
@@ -419,39 +475,41 @@ class AcademicAnxietyApp {
     }
 
     async completeUserRegistration(user, registrationData) {
-        try {
-            // Create user profile with the stored registration data
-            const { error: profileError } = await this.supabase
-                .from('user_profiles')
-                .insert([{
-                    id: user.id,
-                    email: user.email,
-                    full_name: registrationData.name,
-                    participant_id: registrationData.participantId,
-                    created_at: new Date().toISOString()
-                }]);
+    try {
+        // Create user profile with the stored registration data
+        const { error: profileError } = await this.supabase
+            .from('user_profiles')
+            .upsert([{
+                id: user.id,
+                email: user.email,
+                full_name: registrationData.name,
+                participant_id: registrationData.participantId,
+                created_at: new Date().toISOString(),
+                updated_at: new Date().toISOString()
+            }], {
+                onConflict: 'id'
+            });
 
-            if (profileError) {
-                console.error('Error creating profile after confirmation:', profileError);
-                // Use demo data as fallback
-                this.participantId = 'DEMO_' + user.id.substring(0, 8);
-                document.getElementById('userName').textContent = user.email;
-            } else {
-                console.log('Profile created successfully after email confirmation');
-                this.participantId = registrationData.participantId;
-                document.getElementById('userName').textContent = registrationData.name;
-                
-                // Clear the pending registration data
-                this.clearPendingRegistration();
-                
-                // Show welcome message
-                this.showWelcomeMessage(registrationData.name);
-            }
-        } catch (error) {
-            console.error('Error completing registration:', error);
+        if (profileError) {
+            console.error('Error creating profile after confirmation:', profileError);
+            // Use demo data as fallback
+            this.participantId = 'DEMO_' + user.id.substring(0, 8);
+            document.getElementById('userName').textContent = user.email;
+        } else {
+            console.log('Profile created successfully after email confirmation');
+            this.participantId = registrationData.participantId;
+            document.getElementById('userName').textContent = registrationData.name;
+            
+            // Clear the pending registration data
+            this.clearPendingRegistration();
+            
+            // Show welcome message
+            this.showWelcomeMessage(registrationData.name);
         }
+    } catch (error) {
+        console.error('Error completing registration:', error);
     }
-
+}
     showWelcomeMessage(name) {
         // You can show a custom welcome message here
         console.log(`Welcome ${name}! Your registration is now complete.`);
@@ -782,62 +840,173 @@ class AcademicAnxietyApp {
     }
 
     async logSessionStart() {
-        if (!this.user) return;
+    if (!this.user) return;
+    
+    try {
+        const sessionData = {
+            user_id: this.user.id,
+            participant_id: this.participantId,
+            session_start: this.sessionStartTime.toISOString(),
+            statistics_type: this.statisticsType,
+            session_duration: 0,
+            sections_visited: 1,
+            total_time_spent: 0,
+            preferred_sections: 'home',
+            usage_pattern: 'initial_visit'
+        };
         
-        try {
-            const sessionData = {
+        const { data, error } = await this.supabase
+            .from('user_sessions')
+            .insert([sessionData])
+            .select();
+            
+        if (error) {
+            console.error('Error logging session start:', error);
+        } else if (data && data.length > 0) {
+            this.sessionId = data[0].id;
+            console.log('Session started with ID:', this.sessionId);
+        }
+    } catch (error) {
+        console.error('Error logging session:', error);
+    }
+}
+async trackVisit(section) {
+    if (!this.user) {
+        console.log('❌ Cannot track visit: No user logged in');
+        return;
+    }
+
+    console.log('🔄 Tracking visit to section:', section, 'User:', this.user.id);
+    
+    try {
+        // First, update local tracking
+        if (!this.userTracking[section]) {
+            this.userTracking[section] = {
+                visits: 0,
+                lastVisited: '',
+                timeSpent: 0
+            };
+        }
+
+        this.userTracking[section].visits++;
+        this.userTracking[section].lastVisited = new Date().toISOString();
+
+        // Then update database - use upsert to handle both insert and update
+        const { data, error } = await this.supabase
+            .from('section_visits')
+            .upsert({
                 user_id: this.user.id,
                 participant_id: this.participantId,
-                statistics_type: this.statisticsType,
-                session_duration: 0,
-                sections_visited: 1,
-                total_time_spent: 0,
-                preferred_sections: 'home',
-                usage_pattern: 'initial_visit',
-                timestamp: this.sessionStartTime.toISOString()
-            };
+                section_name: section,
+                visit_count: this.userTracking[section].visits,
+                last_visited: new Date().toISOString(),
+                time_spent: this.userTracking[section].timeSpent || 0,
+                updated_at: new Date().toISOString()
+            }, {
+                onConflict: 'user_id,section_name'
+            })
+            .select();
+
+        if (error) {
+            console.error('❌ Error tracking section visit in DB:', error);
+            console.error('Error details:', error.message);
+            console.error('Error code:', error.code);
             
-            const { data, error } = await this.supabase
-                .from('user_sessions')
-                .insert([sessionData])
-                .select();
-                
-            if (error) {
-                console.error('Error logging session start:', error);
-            } else if (data && data.length > 0) {
-                this.sessionId = data[0].id;
-                console.log('Session started with ID:', this.sessionId);
+            // If table doesn't exist, create a fallback
+            if (error.code === '42P01') { // table doesn't exist
+                console.error('❌ section_visits table does not exist!');
+                this.createFallbackTracking(section);
             }
-        } catch (error) {
-            console.error('Error logging session:', error);
+        } else {
+            console.log('✅ Successfully tracked section visit:', section);
+            console.log('Visit count:', this.userTracking[section].visits);
+            console.log('Database response:', data);
         }
+        
+    } catch (error) {
+        console.error('❌ Exception in trackVisit:', error);
+    }
+}
+
+// Fallback method if table doesn't exist
+createFallbackTracking(section) {
+    console.log('📝 Using localStorage fallback for tracking');
+    const key = `teenquest_tracking_${this.user.id}`;
+    let tracking = JSON.parse(localStorage.getItem(key) || '{}');
+    
+    if (!tracking[section]) {
+        tracking[section] = {
+            visits: 0,
+            lastVisited: '',
+            timeSpent: 0
+        };
+    }
+    
+    tracking[section].visits++;
+    tracking[section].lastVisited = new Date().toISOString();
+    localStorage.setItem(key, JSON.stringify(tracking));
+    
+    // Also update local tracking
+    this.userTracking[section] = tracking[section];
+}
+async testDatabaseConnection() {
+    if (!this.user) {
+        console.log('❌ No user logged in for database test');
+        return;
     }
 
-    async trackVisit(section) {
-        if (!this.user) return;
+    try {
+        console.log('🔍 Testing database connection...');
+        
+        // Test basic query
+        const { data, error } = await this.supabase
+            .from('section_visits')
+            .select('*')
+            .limit(1);
 
-        try {
-            if (!this.userTracking[section]) {
-                this.userTracking[section] = {
-                    visits: 0,
-                    lastVisited: '',
-                    timeSpent: 0
-                };
+        if (error) {
+            console.error('❌ Database connection test failed:', error);
+            
+            if (error.code === '42P01') {
+                console.error('❌ TABLE NOT FOUND: section_visits table does not exist');
+                console.log('💡 Please create the section_visits table in your Supabase database');
             }
-
-            this.userTracking[section].visits++;
-            this.userTracking[section].lastVisited = new Date().toISOString();
-            
-            // Save to database
-            await this.saveUserTracking();
-            await this.logSectionVisit(section);
-            
-            console.log('Tracked visit to:', section, 'Total visits:', this.userTracking[section].visits);
-        } catch (error) {
-            console.error('Error tracking visit:', error);
+        } else {
+            console.log('✅ Database connection successful');
+            console.log('Sample data:', data);
         }
-    }
 
+        // Test if we can insert
+        const testData = {
+            user_id: this.user.id,
+            participant_id: this.participantId,
+            section_name: 'test_section',
+            visit_count: 1,
+            last_visited: new Date().toISOString(),
+            time_spent: 0
+        };
+
+        const { data: insertData, error: insertError } = await this.supabase
+            .from('section_visits')
+            .insert([testData])
+            .select();
+
+        if (insertError) {
+            console.error('❌ Insert test failed:', insertError);
+        } else {
+            console.log('✅ Insert test successful:', insertData);
+            
+            // Clean up test data
+            await this.supabase
+                .from('section_visits')
+                .delete()
+                .eq('id', insertData[0].id);
+        }
+
+    } catch (error) {
+        console.error('❌ Database test error:', error);
+    }
+}
     async logSectionVisit(section) {
         if (!this.user) return;
         
@@ -893,44 +1062,148 @@ class AcademicAnxietyApp {
             console.error('Error updating section time:', error);
         }
     }
-
-    async logSessionEnd() {
-        if (!this.user || !this.sessionStartTime) return;
+    async updateDailyUsageSummary() {
+    if (!this.user) return;
+    
+    try {
+        // Calculate today's usage
+        const today = new Date().toISOString().split('T')[0];
         
-        try {
-            const sessionDuration = Math.floor((new Date() - this.sessionStartTime) / 1000);
-            const sectionsVisited = Object.keys(this.userTracking).length;
-            const totalTimeSpent = Object.values(this.userTracking).reduce((sum, section) => sum + (section.timeSpent || 0), 0);
-            
-            const preferredSections = Object.entries(this.userTracking)
-                .sort(([,a], [,b]) => (b.visits || 0) - (a.visits || 0))
-                .slice(0, 3)
-                .map(([section]) => section)
-                .join(',');
-                
-            const usagePattern = this.determineUsagePattern();
+        // Get today's sessions
+        const { data: sessions, error: sessionsError } = await this.supabase
+            .from('user_sessions')
+            .select('*')
+            .eq('user_id', this.user.id)
+            .gte('session_start', today + 'T00:00:00Z')
+            .lte('session_start', today + 'T23:59:59Z');
 
-            const { error } = await this.supabase
-                .from('user_sessions')
-                .update({
-                    session_duration: sessionDuration,
-                    sections_visited: sectionsVisited,
-                    total_time_spent: totalTimeSpent,
-                    preferred_sections: preferredSections,
-                    usage_pattern: usagePattern
-                })
-                .eq('user_id', this.user.id)
-                .eq('id', this.sessionId);
-                
-            if (error) {
-                console.error('Error updating session end:', error);
-            } else {
-                console.log('Session data saved successfully');
-            }
-        } catch (error) {
-            console.error('Error logging session end:', error);
+        if (sessionsError) throw sessionsError;
+
+        // Get today's section visits
+        const { data: sections, error: sectionsError } = await this.supabase
+            .from('section_visits')
+            .select('section_name')
+            .eq('user_id', this.user.id)
+            .gte('last_visited', today + 'T00:00:00Z')
+            .lte('last_visited', today + 'T23:59:59Z');
+
+        if (sectionsError) throw sectionsError;
+
+        // Get today's document interactions
+        const { data: documents, error: docsError } = await this.supabase
+            .from('document_interactions')
+            .select('id')
+            .eq('user_id', this.user.id)
+            .gte('interacted_at', today + 'T00:00:00Z')
+            .lte('interacted_at', today + 'T23:59:59Z');
+
+        if (docsError) throw docsError;
+
+        // Get today's audio interactions
+        const { data: audio, error: audioError } = await this.supabase
+            .from('audio_interactions')
+            .select('id')
+            .eq('user_id', this.user.id)
+            .gte('interacted_at', today + 'T00:00:00Z')
+            .lte('interacted_at', today + 'T23:59:59Z');
+
+        if (audioError) throw audioError;
+
+        // Calculate totals
+        const totalSessions = sessions?.length || 0;
+        const totalTimeSpent = sessions?.reduce((sum, session) => sum + (session.session_duration || 0), 0) || 0;
+        const sectionsAccessed = [...new Set(sections?.map(s => s.section_name) || [])];
+        const documentsViewed = documents?.length || 0;
+        const audioPlayed = audio?.length || 0;
+
+        // Update daily usage summary
+        const { error } = await this.supabase
+            .from('daily_usage_summary')
+            .upsert([{
+                user_id: this.user.id,
+                participant_id: this.participantId,
+                usage_date: today,
+                total_sessions: totalSessions,
+                total_time_spent: totalTimeSpent,
+                sections_accessed: sectionsAccessed,
+                documents_viewed: documentsViewed,
+                audio_played: audioPlayed
+            }], {
+                onConflict: 'user_id,usage_date'
+            });
+
+        if (error) {
+            console.error('Error updating daily usage summary:', error);
+        } else {
+            console.log('Daily usage summary updated for:', today);
         }
+    } catch (error) {
+        console.error('Error in updateDailyUsageSummary:', error);
     }
+}
+
+async logSessionEnd() {
+    if (!this.user || !this.sessionStartTime) return;
+    
+    try {
+        const sessionDuration = Math.floor((new Date() - this.sessionStartTime) / 1000);
+        
+        // Update session end time and duration
+        const { error } = await this.supabase
+            .from('user_sessions')
+            .update({
+                session_end: new Date().toISOString(),
+                session_duration: sessionDuration
+            })
+            .eq('id', this.sessionId);
+            
+        if (error) {
+            console.error('Error updating session end:', error);
+        } else {
+            console.log('Session data saved successfully');
+            
+            // Update daily usage summary after session ends
+            await this.updateDailyUsageSummary();
+        }
+    } catch (error) {
+        console.error('Error logging session end:', error);
+    }
+}
+async startSectionTimeTracking(section) {
+    this.sectionStartTime = new Date();
+    console.log('⏱️ Started time tracking for:', section);
+}
+
+async updateSectionTime(section) {
+    if (!this.sectionStartTime || !this.user) return;
+    
+    const timeSpent = Math.floor((new Date() - this.sectionStartTime) / 1000);
+    console.log('⏱️ Time spent in', section + ':', timeSpent + ' seconds');
+    
+    // Update local tracking
+    if (this.userTracking[section]) {
+        this.userTracking[section].timeSpent = (this.userTracking[section].timeSpent || 0) + timeSpent;
+    }
+
+    // Update database
+    try {
+        const { error } = await this.supabase
+            .from('section_visits')
+            .update({
+                time_spent: this.userTracking[section]?.timeSpent || timeSpent
+            })
+            .eq('user_id', this.user.id)
+            .eq('section_name', section);
+
+        if (error) {
+            console.error('❌ Error updating section time:', error);
+        } else {
+            console.log('✅ Updated time spent for', section + ':', timeSpent + ' seconds');
+        }
+    } catch (error) {
+        console.error('❌ Exception updating section time:', error);
+    }
+}
 
     determineUsagePattern() {
         const visits = Object.values(this.userTracking).map(s => s.visits || 0);
@@ -942,39 +1215,57 @@ class AcademicAnxietyApp {
         return 'balanced';
     }
 
-    showSection(section) {
-        if (!this.user) {
-            this.showModal('loginModal');
-            return;
+showSection(section) {
+    if (!this.user) {
+        this.showModal('loginModal');
+        return;
+    }
+
+    console.log('🔄 Switching to section:', section);
+    
+    // Update time for previous section before switching
+    if (this.sectionStartTime && this.currentSection && this.currentSection !== section) {
+        this.updateSectionTime(this.currentSection);
+    }
+    
+    // Update current section
+    this.currentSection = section;
+    
+    // Start time tracking for new section
+    this.startSectionTimeTracking(section);
+    
+    // Remove all background classes
+    document.body.classList.remove('home-bg', 'strategies-bg', 'study-bg', 'breathing-bg', 'exercise-bg', 'meditation-bg', 'tracking-bg', 'feedback-bg', 'profile-bg', 'research-team-bg', 'developer-bg');
+    
+    // Add the appropriate background class
+    document.body.classList.add(`${section}-bg`);
+    
+    // Update navigation
+    document.querySelectorAll('.nav-item').forEach(item => {
+        item.classList.remove('active');
+        if (item.dataset.section === section) {
+            item.classList.add('active');
         }
+    });
 
-        // Always update the current section and content - removed the condition that was preventing updates
-        this.currentSection = section;
+    // Load content
+    const mainContent = document.getElementById('mainContent');
+    if (mainContent) {
+        mainContent.innerHTML = this.getSectionContent(section);
+        this.setupDocumentEventListeners();
         
-        // Remove all background classes
-        document.body.classList.remove('home-bg', 'strategies-bg', 'study-bg', 'breathing-bg', 'exercise-bg', 'meditation-bg', 'tracking-bg', 'feedback-bg', 'profile-bg', 'research-team-bg', 'developer-bg');
-        
-        // Add the appropriate background class
-        document.body.classList.add(`${section}-bg`);
-        
-        document.querySelectorAll('.nav-item').forEach(item => {
-            item.classList.remove('active');
-            if (item.dataset.section === section) {
-                item.classList.add('active');
-            }
-        });
-
-        const mainContent = document.getElementById('mainContent');
-        if (mainContent) {
-            mainContent.innerHTML = this.getSectionContent(section);
-            this.setupDocumentEventListeners();
-            
-            // Scroll to top on mobile
-            if (window.innerWidth <= 1024) {
-                window.scrollTo(0, 0);
-            }
+        // Scroll to top on mobile
+        if (window.innerWidth <= 1024) {
+            window.scrollTo(0, 0);
         }
     }
+
+    // Track the visit - ADD A SMALL DELAY TO ENSURE CONTENT IS LOADED
+    setTimeout(() => {
+        console.log('📊 Calling trackVisit for:', section);
+        this.trackVisit(section);
+    }, 100);
+}
 
     getSectionContent(section) {
         const sections = {
@@ -1689,27 +1980,20 @@ getDeveloperContent() {
                 </div>
                 <div class="developer-info">
                     <h2>Kripashankar Sattanathan</h2>
-                    <p class="developer-role"> CTO - AI Researcher & Cloud Engineer at Solreign Softwares </p>
+                    <p class="developer-role"> AI Researcher & Cloud Engineer </p>
                     <p> Pursuing MTech in AI(Part Time),
                         College of Engineering Technology,
                         SRM Institute of Science and Technology, Kattankulathur </p>
                     <div class="developer-details">
                         <div class="detail-item">
                             <i class="fas fa-university"></i>
-                            <span>Solregin - AI Research & Cloud Solutions</span>
+                            <span> AI Research & Cloud Solutions</span>
                         </div>
                         <div class="detail-item">
                             <i class="fas fa-code"></i>
                             <span>Web Development & Research Technology</span>
                         </div>
-                        <div class="detail-item">
-                            <i class="fas fa-globe"></i>
-                            <span>
-                                <a href="https://kripashankar14.github.io/SolreignSoftech/" target="_blank" style="color: var(--vibrant-blue); text-decoration: none;">
-                                    Solreign.com
-                                </a>
-                            </span>
-                        </div>
+
                     </div>
                 </div>
             </div>
@@ -1718,7 +2002,7 @@ getDeveloperContent() {
         <div class="content-card">
             <h3>About This Platform</h3>
             <div class="platform-info">
-<p>The TeenQuest platform was developed by Solregin as part of an academic research study investigating the effectiveness of digital interventions for managing academic anxiety in teenage students.</p>                
+<p>The TeenQuest platform was developed by Kripashankar Sattanathan as part of an academic research study investigating the effectiveness of digital interventions for managing academic anxiety in teenage students.</p>                
                 <div class="tech-stack">
                     <h4>Technology Stack</h4>
                     <div class="tech-items">
@@ -1816,7 +2100,7 @@ getDeveloperContent() {
     getFeedbackContent() {
         return `
           <div class="hero-card bg-blue">
-                <h1>Your Feedback Matters</h1>
+                <h1>Which are the features did you find most helpful?</h1>
                 <p>Help us improve your experience and contribute to our research</p>
             </div>
 
@@ -1867,31 +2151,58 @@ getDeveloperContent() {
         `;
     }
 
-    setupDocumentEventListeners() {
-        // Set up PDF view buttons
-        document.querySelectorAll('.pdf-btn').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                const fileName = e.target.closest('.pdf-btn').dataset.file;
-                this.viewPdf(fileName);
-            });
+setupDocumentEventListeners() {
+    // Set up PDF view buttons
+    document.querySelectorAll('.pdf-btn').forEach(btn => {
+        btn.addEventListener('click', async (e) => {
+            const fileName = e.target.closest('.pdf-btn').dataset.file;
+            await this.logDocumentInteraction(fileName, 'view');
+            this.viewPdf(fileName);
         });
+    });
 
-        // Set up download document buttons
-        document.querySelectorAll('.download-doc-btn').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                const fileName = e.target.closest('.download-doc-btn').dataset.file;
-                this.downloadDocument(fileName);
-            });
+    // Set up download document buttons
+    document.querySelectorAll('.download-doc-btn').forEach(btn => {
+        btn.addEventListener('click', async (e) => {
+            const fileName = e.target.closest('.download-doc-btn').dataset.file;
+            await this.logDocumentInteraction(fileName, 'download');
+            this.downloadDocument(fileName);
         });
+    });
 
-        // Set up audio buttons
-        document.querySelectorAll('.audio-btn').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                const audioId = e.target.closest('.audio-btn').dataset.audio;
-                this.playAudio(audioId);
-            });
+    // Set up audio buttons
+    document.querySelectorAll('.audio-btn').forEach(btn => {
+        btn.addEventListener('click', async (e) => {
+            const audioId = e.target.closest('.audio-btn').dataset.audio;
+            await this.logAudioInteractionStart(audioId);
+            this.playAudio(audioId);
         });
+    });
+}
+async logDocumentInteraction(documentName, interactionType) {
+    if (!this.user) return;
+    
+    try {
+        const { error } = await this.supabase
+            .from('document_interactions')
+            .insert([{
+                user_id: this.user.id,
+                participant_id: this.participantId,
+                document_name: documentName,
+                interaction_type: interactionType,
+                duration: 0, // You can track duration if you implement it
+                interacted_at: new Date().toISOString()
+            }]);
+
+        if (error) {
+            console.error('Error logging document interaction:', error);
+        } else {
+            console.log('Document interaction logged:', documentName, interactionType);
+        }
+    } catch (error) {
+        console.error('Error logging document interaction:', error);
     }
+}
 
     async viewPdf(fileName) {
         try {
@@ -2032,24 +2343,77 @@ getDeveloperContent() {
         // Highlight active audio in list
         this.highlightActiveAudio(audioFile.id);
     }
+    async logAudioInteractionStart(audioId) {
+    if (!this.user) return;
+    
+    try {
+        const { error } = await this.supabase
+            .from('audio_interactions')
+            .insert([{
+                user_id: this.user.id,
+                participant_id: this.participantId,
+                audio_name: audioId,
+                play_duration: 0,
+                completed: false,
+                interacted_at: new Date().toISOString()
+            }]);
+
+        if (error) {
+            console.error('Error logging audio interaction start:', error);
+        } else {
+            console.log('Audio interaction started:', audioId);
+        }
+    } catch (error) {
+        console.error('Error logging audio interaction start:', error);
+    }
+}
+
+async logAudioInteractionComplete(audioId, duration) {
+    if (!this.user) return;
+    
+    try {
+        const { error } = await this.supabase
+            .from('audio_interactions')
+            .update({
+                play_duration: duration,
+                completed: true,
+                interacted_at: new Date().toISOString()
+            })
+            .eq('user_id', this.user.id)
+            .eq('audio_name', audioId)
+            .eq('completed', false);
+
+        if (error) {
+            console.error('Error logging audio interaction complete:', error);
+        } else {
+            console.log('Audio interaction completed:', audioId, 'Duration:', duration);
+        }
+    } catch (error) {
+        console.error('Error logging audio interaction complete:', error);
+    }
+}
 
     setupAudioEvents() {
-        this.audioPlayer.addEventListener('loadedmetadata', () => {
-            document.getElementById('totalTime').textContent = this.formatTime(this.audioPlayer.duration);
-        });
+    this.audioPlayer.addEventListener('loadedmetadata', () => {
+        document.getElementById('totalTime').textContent = this.formatTime(this.audioPlayer.duration);
+    });
+    
+    this.audioPlayer.addEventListener('timeupdate', () => {
+        const progress = (this.audioPlayer.currentTime / this.audioPlayer.duration) * 100;
+        document.getElementById('progress').style.width = `${progress}%`;
+        document.getElementById('currentTime').textContent = this.formatTime(this.audioPlayer.currentTime);
+    });
+    
+    this.audioPlayer.addEventListener('ended', () => {
+        this.isPlaying = false;
+        document.getElementById('playPauseBtn').innerHTML = '<i class="fas fa-play"></i>';
         
-        this.audioPlayer.addEventListener('timeupdate', () => {
-            const progress = (this.audioPlayer.currentTime / this.audioPlayer.duration) * 100;
-            document.getElementById('progress').style.width = `${progress}%`;
-            document.getElementById('currentTime').textContent = this.formatTime(this.audioPlayer.currentTime);
-        });
-        
-        this.audioPlayer.addEventListener('ended', () => {
-            this.isPlaying = false;
-            document.getElementById('playPauseBtn').innerHTML = '<i class="fas fa-play"></i>';
-        });
-    }
-
+        // Log audio completion
+        if (this.currentAudio) {
+            this.logAudioInteractionComplete(this.currentAudio.id, Math.floor(this.audioPlayer.duration));
+        }
+    });
+}
     togglePlayPause() {
         if (!this.audioPlayer) return;
         
@@ -2177,6 +2541,7 @@ getDeveloperContent() {
         }
     }
 }
+
 
 // Initialize the app
 const app = new AcademicAnxietyApp();
